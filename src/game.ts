@@ -12,17 +12,17 @@ import { isValidBoundedVector3Component, isValidUsername } from "./lib/formats";
 
 @Component('fallInPosition')
 export class FallInPosition {
-  y: number
+  finalY: number
   progress: number
   settled: boolean
-  constructor(){
-    this.y = defaultTileY
+  constructor(y: number){
+    this.finalY = y
     this.progress = 0
     this.settled = false
   }
 }
 
-const fallInObjects = engine.getComponentGroup(FallInPosition)
+const fallingObjects = engine.getComponentGroup(FallInPosition)
 
 @Component('slideDoor')
 export class SlideDoor {
@@ -41,7 +41,26 @@ const tiles = engine.getComponentGroup(TileColor)
 
 ////////////////////////////
 
+export class FallIntoPlace implements ISystem {
+ 
+  update(dt: number) {
+    for (let object of fallingObjects.entities) {
+      let state = object.get(FallInPosition)
+      let transform = object.get(Transform)
+      if (!state.settled){
 
+        state.progress -= dt
+        transform.position.y = Scalar.Lerp(defaultTileY, state.finalY, state.progress)
+        if (state.progress < 0){
+          state.settled = true
+        }
+      }
+    }
+  }
+}
+
+// Add system to engine
+engine.addSystem(new FallIntoPlace())
 
 /////////////////////////////
 
@@ -111,8 +130,9 @@ for (let a = gridMin; a < gridMax; a += 1) {
     tile.add(new PlaneShape())
     tile.add(new Transform())
     tile.get(Transform).position.set(a * 2 + 1, defaultTileY, b * 2 + 1)
+    tile.get(Transform).rotation.eulerAngles = new Vector3(90, 0, 0)
     tile.get(Transform).scale.set(2,0.1,2)
-    tile.set(new FallInPosition())
+    tile.set(new FallInPosition(0))
     tile.set(new TileColor())
 
 
@@ -159,37 +179,38 @@ let character = new Character();
 
 let billboardBox = new Entity()
 billboardBox.set(new Transform())
-billboardBox.get(Transform).position.set(5, 4, 9)
+billboardBox.get(Transform).position.set(5, defaultTileY, 9)
 billboardBox.get(Transform).scale.set(4, 1.5, 0.01)
 billboardBox.get(Transform).rotation.eulerAngles = new Vector3(-50, 0, 0)
 billboardBox.set(new PlaneShape())
+billboardBox.set(new FallInPosition(4))
 billboardBox.set(signMaterial)
 engine.addEntity(billboardBox)
 
 let leftWall = new Entity()
 leftWall.set(new Transform())
-leftWall.get(Transform).position.set(2, 10, 0.5)
+leftWall.get(Transform).position.set(2, defaultTileY, 0.5)
 leftWall.set(new BoxShape())
 leftWall.get(BoxShape).withCollisions = true
-leftWall.set(new FallInPosition())
+leftWall.set(new FallInPosition(1))
 leftWall.set(wallMaterial)
 engine.addEntity(leftWall)
 
 let rightWall = new Entity()
 rightWall.set(new Transform())
-rightWall.get(Transform).position.set(8, 10, 0.5)
+rightWall.get(Transform).position.set(8, defaultTileY, 0.5)
 rightWall.set(new BoxShape())
 rightWall.get(BoxShape).withCollisions = true
-rightWall.set(new FallInPosition())
+rightWall.set(new FallInPosition(1))
 rightWall.set(wallMaterial)
 engine.addEntity(rightWall)
 
 let door = new Entity()
 door.set(new Transform())
-door.get(Transform).position.set(8, 10, 0.5)
+door.get(Transform).position.set(8, defaultTileY, 0.5)
 door.set(new BoxShape())
 door.get(BoxShape).withCollisions = true
-door.set(new FallInPosition())
+door.set(new FallInPosition(1))
 door.set(doorMaterial)
 engine.addEntity(door)
 
@@ -198,11 +219,11 @@ engine.addEntity(door)
 
 let background = new Entity()
 background.set(new Transform)
-background.get(Transform).position.set(5, 1, 9.5)
+background.get(Transform).position.set(5, defaultTileY, 9.5)
 background.get(Transform).scale.set(1.5, 0.8, 0.01)
-background.get(Transform).rotation.eulerAngles = new Vector3(30, 0 0)
+background.get(Transform).rotation.eulerAngles = new Vector3(30, 0, 0)
 background.set(signMaterial)
-background.set(new FallInPosition())
+background.set(new FallInPosition(1))
 background.get(BoxShape).withCollisions = true
 engine.addEntity(background)
 
