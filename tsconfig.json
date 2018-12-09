@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "outFile": "./bin/game.js"
+    "outFile": "./bin/game.js"//,
+    //"types": ["node", "lodash", "express","src/**/*.ts", "./node_modules/decentraland-ecs/types/tsconfig.json"]
   },
   "include": ["src/**/*.ts"],
   "extends": "./node_modules/decentraland-ecs/types/tsconfig.json"

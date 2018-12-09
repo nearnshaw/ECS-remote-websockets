@@ -16,7 +16,10 @@
     "removeComments": true,
     "outDir": ".",
     "pretty": true,
-    "lib": ["es2017"]
+    "lib": ["es2017"]//,
+    // "types": [
+    //   "node"
+    // ]
   },
   "exclude": ["node_modules"]
 }

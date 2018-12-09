@@ -9,7 +9,6 @@ will try to use to goof around with servers.
 
 */
 
-import { Vector3Component } from "decentraland-api";
 import { EventEmitter } from "events";
 import { Character } from "./character";
 import { characterIdleMs } from "./config";
@@ -21,8 +20,8 @@ import { isValidId, isValidUsername, isValidVector3Component } from "./formats";
 export interface ICharacterJoinEvent {
   id: string;
   username: string;
-  position: Vector3Component;
-  rotation: Vector3Component;
+  position: Vector3;
+  rotation: Vector3;
 }
 
 /**
@@ -45,7 +44,7 @@ export interface ICharacterUsernameEvent {
  */
 export interface ICharacterPositionEvent {
   id: string;
-  position: Vector3Component;
+  position: Vector3;
 }
 
 /**
@@ -53,7 +52,7 @@ export interface ICharacterPositionEvent {
  */
 export interface ICharacterRotationEvent {
   id: string;
-  rotation: Vector3Component;
+  rotation: Vector3;
 }
 
 /**

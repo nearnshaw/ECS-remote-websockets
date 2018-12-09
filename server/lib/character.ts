@@ -1,4 +1,4 @@
-import { Vector3Component } from "decentraland-api";
+
 import { randomId } from "./formats";
 
 /**
@@ -9,17 +9,9 @@ export class Character {
   public id: string = randomId();
   public username: string = "";
 
-  public position: Vector3Component = {
-    x: 0,
-    y: 0,
-    z: 0,
-  };
+  public position: Vector3 = new Vector3(0, 0, 0)
 
-  public rotation: Vector3Component = {
-    x: 0,
-    y: 0,
-    z: 0,
-  };
+  public rotation: Vector3 = new Vector3(0, 0, 0)
 
   constructor() {
     this.username = this.id;

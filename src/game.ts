@@ -1,12 +1,12 @@
 import { Character } from "./lib/character";
-import {
-  CharacterManager,
-  ICharacterJoinEvent,
-  ICharacterPartEvent,
-  ICharacterPositionEvent,
-  ICharacterRotationEvent,
-  ICharacterUsernameEvent,
-} from "./lib/character-manager";
+// import {
+//   CharacterManager,
+//   ICharacterJoinEvent,
+//   ICharacterPartEvent,
+//   ICharacterPositionEvent,
+//   ICharacterRotationEvent,
+//   ICharacterUsernameEvent,
+// } from "./lib/character-manager";
 import { socketHost, socketPath } from "./lib/config";
 import { isValidBoundedVector3Component, isValidUsername } from "./lib/formats";
 
@@ -161,16 +161,16 @@ function distance(pos1: Vector3, pos2: Vector3): number {
  *
  * See ./config.ts
  */
-const charInBounds = (char: Character) =>
-  isValidBoundedVector3Component(char.position) === true;
+// const charInBounds = (char: Character) =>
+//   isValidBoundedVector3Component(char.position) === true;
 
 //
 // CharacterManager holds information about the other characters
 //
-const characterManager = new CharacterManager();
+// const characterManager = new CharacterManager();
 
-// representing the viewer of this scene
-let character = new Character();
+// // representing the viewer of this scene
+// let character = new Character();
 
 
 /////////////////////////

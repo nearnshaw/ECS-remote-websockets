@@ -3,19 +3,6 @@
 /*! dcl-amd */;
 var loader;(function(e){"use strict";var r=1;var d=2;var i=[];var f={baseUrl:""};var c={};function n(e){if(typeof e==="object"){for(var n in e){if(e.hasOwnProperty(n)){f[n]=e[n]}}}}e.config=n;function l(t,e,o){var n=arguments.length;if(n===1){o=t;e=["require","exports","module"];t=null}else if(n===2){if(f.toString.call(t)==="[object Array]"){o=e;e=t;t=null}else{o=e;e=["require","exports","module"]}}if(!t){i.push([e,o]);return}function r(){var e,n;if(c[t]){e=c[t].handlers;n=c[t].context}var r=c[t]=typeof o==="function"?o.apply(null,i.slice.call(arguments,0))||c[t]||{}:o;r.dclamd=d;r.context=n;for(var l=0,a=e?e.length:0;l<a;l++){e[l](r)}}u(e,r,t)}e.define=l;(function(e){e.amd={}})(l=e.define||(e.define={}));function u(r,l,a){var t=[];var o=0;var i=false;if(typeof r==="string"){if(c[r]&&c[r].dclamd===d){return c[r]}throw new Error(r+" has not been defined. Please include it as a dependency in "+a+"'s define()")}var f=r.length;var e=function(n){switch(r[n]){case"require":var e=function(e,n){return u(e,n,a)};e.toUrl=function(e){return p(e,a)};t[n]=e;o++;break;case"exports":t[n]=c[a]||(c[a]={});o++;break;case"module":t[n]={id:a,uri:p(a)};o++;break;case c[a]?c[a].context:"":t[n]=c[c[a].context];o++;break;default:s(r[n],function(e){t[n]=e;o++;if(o===f&&l){i=true;l.apply(null,t)}if(c[r[n]]){c[r[n]].dclamd=d}},a)}};for(var n=0;n<f;n++){e(n)}if(!i&&o===f&&l){l.apply(null,t)}}e.require=u;function t(e,n){return function(){return dcl.callRpc(e,n.name,i.slice.call(arguments,0))}}function s(e,a,n){e=n?p(e,n):e;if(c[e]){if(c[e].dclamd===r){a&&c[e].handlers.push(a)}else{a&&a(c[e])}return}else{c[e]={name:e,dclamd:r,handlers:[a],context:n}}if(e.indexOf("@")===0){if(typeof dcl!=="undefined"){dcl.loadModule(e).then(function(e){var n={};for(var r in e.methods){var l=e.methods[r];n[l.name]=t(e.rpcHandle,l)}a(n)})}}}if(typeof dcl!=="undefined"){dcl.onStart(function(){var e=[];for(var n in c){if(c[n]&&c[n].dclamd===r){e.push(c[n])}}if(e.length){throw new Error("These modules didn't load: "+e.map(function(e){return e.name}).join(", "))}})}function p(e,n){var r=false;switch(e){case"require":case"exports":case"module":return e}var l=(n||f.baseUrl).split("/");l.pop();var a=e.split("/");var t=a.length;while(--t){switch(e[0]){case"..":l.pop();case".":case"":a.shift();r=true}}return(l.length&&r?l.join("/")+"/":"")+a.join("/")}u.toUrl=p})(loader||(loader={}));global=typeof global!=="undefined"?global:typeof self!=="undefined"?self:typeof this!=="undefined"?this:null;if(!global)throw new Error("unknown global context");global.define=loader.define;global.dclamd=loader;;
 /*! Compiled code */;
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -74,9 +61,6 @@ define("lib/config", ["require", "exports"], function (require, exports) {
 define("lib/formats", ["require", "exports", "lib/config"], function (require, exports, config_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var isNumber = require("lodash/isNumber");
-    var isFinite = require("lodash/isFinite");
-    var clamp = require("lodash/clamp");
     var validIdPattern = /^character-\d{5,20}$/;
     var validUsernamePattern = /^[0-9a-zA-Z\-\_\.\ ]{3,20}$/;
     /**
@@ -106,7 +90,7 @@ define("lib/formats", ["require", "exports", "lib/config"], function (require, e
      */
     exports.isValidNumber = function (num) {
         // numeric
-        return isNumber(num) === true &&
+        return isNaN(num) === false &&
             // not infinity, not NaN
             isFinite(num) === true;
     };
@@ -138,17 +122,20 @@ define("lib/formats", ["require", "exports", "lib/config"], function (require, e
     /**
      * Clamp a number to the configured bounds
      */
-    exports.clampNumber = function (num) {
-        return clamp(num, config_1.boundsMin, config_1.boundsMax);
-    };
+    function clampNumber(num) {
+        if (num < config_1.boundsMin) {
+            return 0;
+        }
+        if (num > config_1.boundsMax) {
+            return 10;
+        }
+        return num;
+    }
+    exports.clampNumber = clampNumber;
     /**
      * Limit the {x,y,z} of a Vector3Component object to the configured bounds
      */
-    exports.clampVector3 = function (v3) { return ({
-        x: exports.clampNumber(v3.x),
-        y: exports.clampNumber(v3.y),
-        z: exports.clampNumber(v3.z),
-    }); };
+    exports.clampVector3 = function (v3) { return new Vector3(clampNumber(v3.x), clampNumber(v3.y), clampNumber(v3.z)); };
 });
 define("lib/character", ["require", "exports", "lib/formats"], function (require, exports, formats_1) {
     "use strict";
@@ -161,191 +148,15 @@ define("lib/character", ["require", "exports", "lib/formats"], function (require
         function Character() {
             this.id = formats_1.randomId();
             this.username = "";
-            this.position = {
-                x: 0,
-                y: 0,
-                z: 0,
-            };
-            this.rotation = {
-                x: 0,
-                y: 0,
-                z: 0,
-            };
+            this.position = new Vector3(0, 0, 0);
+            this.rotation = new Vector3(0, 0, 0);
             this.username = this.id;
         }
         return Character;
     }());
     exports.Character = Character;
 });
-/*
-
-+ Character state
-+ CharacterManager manages a collection of Character states
-+ Functions that validate and manage state for the users.
-
-It's not overkill when you consider how many different ways attackers
-will try to use to goof around with servers.
-
-*/
-define("lib/character-manager", ["require", "exports", "events", "lib/character", "lib/config", "lib/formats"], function (require, exports, events_1, character_1, config_2, formats_2) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var characterDoesNotExistError = new Error("the character doesn't exist");
-    /**
-     * Manage some state for all the connected users. It's an isomorphic
-     * class being used on clients and the server.
-     */
-    var CharacterManager = /** @class */ (function (_super) {
-        __extends(CharacterManager, _super);
-        function CharacterManager() {
-            var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.characters = {};
-            _this.expirationTimers = {};
-            return _this;
-        }
-        /**
-         * Stop a timer that expires a Character
-         */
-        CharacterManager.prototype.cancelExpiration = function (id) {
-            if (this.expirationTimers[id] === undefined) {
-                return;
-            }
-            clearTimeout(this.expirationTimers[id]);
-            delete this.expirationTimers[id];
-        };
-        /**
-         * Start a timer that will remove a Character
-         */
-        CharacterManager.prototype.scheduleExpiration = function (id) {
-            var _this = this;
-            if (this.characters[id] === undefined) {
-                return;
-            }
-            this.cancelExpiration(id);
-            var timer = setTimeout(function () { return _this.characterPart({ id: id }); }, config_2.characterIdleMs);
-            this.expirationTimers[id] = timer;
-        };
-        CharacterManager.prototype.validationError = function (field) {
-            return new Error("CharacterManager: event validation error \u2192 " + field);
-        };
-        /**
-         * When the characters join we want to validate then add them into the list
-         */
-        CharacterManager.prototype.characterJoin = function (joinEvent) {
-            var characters = this.characters;
-            var id = joinEvent.id, username = joinEvent.username, rotation = joinEvent.rotation;
-            var position = joinEvent.position;
-            if (formats_2.isValidId(id) === false) {
-                return [false, this.validationError("id")];
-            }
-            if (formats_2.isValidUsername(username) === false) {
-                return [false, this.validationError("username")];
-            }
-            if (formats_2.isValidVector3Component(position) === false) {
-                return [false, this.validationError("position")];
-            }
-            if (formats_2.isValidVector3Component(rotation) === false) {
-                return [false, this.validationError("rotation")];
-            }
-            this.scheduleExpiration(id);
-            var char = characters[id] || new character_1.Character();
-            char.id = id;
-            char.username = username;
-            char.position = position;
-            char.rotation = rotation;
-            this.characters[id] = char;
-            return [true, undefined];
-        };
-        /**
-         * Remove a character from the list
-         */
-        CharacterManager.prototype.characterPart = function (partEvent) {
-            var id = partEvent.id;
-            this.cancelExpiration(id);
-            delete this.characters[id];
-            return [true, undefined];
-        };
-        /**
-         * A user decides to change their randomized name
-         */
-        CharacterManager.prototype.updateCharacterUsername = function (usernameEvent) {
-            var characters = this.characters;
-            var id = usernameEvent.id, username = usernameEvent.username;
-            if (formats_2.isValidId(id) === false) {
-                return [false, this.validationError("id")];
-            }
-            if (formats_2.isValidUsername(username) === false) {
-                return [false, this.validationError("username")];
-            }
-            if (characters[id] === undefined) {
-                return [false, characterDoesNotExistError];
-            }
-            this.scheduleExpiration(id);
-            this.characters[id].username = username;
-            return [true, undefined];
-        };
-        /**
-         * Handle each user's {x,y,z} movement
-         */
-        CharacterManager.prototype.updateCharacterPosition = function (positionEvent) {
-            var characters = this.characters;
-            var id = positionEvent.id;
-            var position = positionEvent.position;
-            if (formats_2.isValidId(id) === false) {
-                return [false, this.validationError("id")];
-            }
-            if (formats_2.isValidVector3Component(position) === false) {
-                return [false, this.validationError("position")];
-            }
-            if (characters[id] === undefined) {
-                return [false, characterDoesNotExistError];
-            }
-            this.scheduleExpiration(id);
-            this.characters[id].position = position;
-            return [true, undefined];
-        };
-        /**
-         * Handle the {x,y,z} of where the users are looking
-         */
-        CharacterManager.prototype.updateCharacterRotation = function (rotationEvent) {
-            var characters = this.characters;
-            var id = rotationEvent.id, rotation = rotationEvent.rotation;
-            if (formats_2.isValidId(id) === false) {
-                return [false, this.validationError("id")];
-            }
-            if (formats_2.isValidVector3Component(rotation) === false) {
-                return [false, this.validationError("rotation")];
-            }
-            if (characters[id] === undefined) {
-                return [false, characterDoesNotExistError];
-            }
-            this.scheduleExpiration(id);
-            this.characters[id].rotation = rotation;
-            return [true, undefined];
-        };
-        /**
-         * Refresh the timer that will expire a character.
-         */
-        CharacterManager.prototype.ping = function (pingEvent) {
-            var id = pingEvent.id;
-            if (formats_2.isValidId(id) === false) {
-                return [false, this.validationError("id")];
-            }
-            if (this.characters[id] === undefined) {
-                return [false, characterDoesNotExistError];
-            }
-            this.scheduleExpiration(id);
-            return [true, undefined];
-        };
-        CharacterManager.prototype.characterList = function () {
-            var characters = this.characters;
-            return Object.keys(characters).map(function (key) { return characters[key]; });
-        };
-        return CharacterManager;
-    }(events_1.EventEmitter));
-    exports.CharacterManager = CharacterManager;
-});
-define("game", ["require", "exports", "lib/character", "lib/character-manager", "lib/formats"], function (require, exports, character_2, character_manager_1, formats_3) {
+define("game", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var FallInPosition = /** @class */ (function () {
@@ -486,15 +297,14 @@ define("game", ["require", "exports", "lib/character", "lib/character-manager", 
      *
      * See ./config.ts
      */
-    var charInBounds = function (char) {
-        return formats_3.isValidBoundedVector3Component(char.position) === true;
-    };
+    // const charInBounds = (char: Character) =>
+    //   isValidBoundedVector3Component(char.position) === true;
     //
     // CharacterManager holds information about the other characters
     //
-    var characterManager = new character_manager_1.CharacterManager();
-    // representing the viewer of this scene
-    var character = new character_2.Character();
+    // const characterManager = new CharacterManager();
+    // // representing the viewer of this scene
+    // let character = new Character();
     /////////////////////////
     // Scenery
     var billboardBox = new Entity();
@@ -567,3 +377,216 @@ define("game", ["require", "exports", "lib/character", "lib/character-manager", 
     textBox.get(TextShape).height = 0.4;
     engine.addEntity(textBox);
 });
+// /*
+// + Character state
+// + CharacterManager manages a collection of Character states
+// + Functions that validate and manage state for the users.
+// It's not overkill when you consider how many different ways attackers
+// will try to use to goof around with servers.
+// */
+// //import { EventEmitter } from "events";
+// import { Character } from "./character";
+// import { characterIdleMs } from "./config";
+// import { isValidId, isValidUsername, isValidVector3Component } from "./formats";
+// /**
+//  * Sent and received when new users join the server
+//  */
+// export interface ICharacterJoinEvent {
+//   id: string;
+//   username: string;
+//   position: Vector3;
+//   rotation: Vector3;
+// }
+// /**
+//  * The user leaves the scenes
+//  */
+// export interface ICharacterPartEvent {
+//   id: string;
+// }
+// /**
+//  * Sent and received user changing their username
+//  */
+// export interface ICharacterUsernameEvent {
+//   id: string;
+//   username: string;
+// }
+// /**
+//  * Sent and received when a character moves
+//  */
+// export interface ICharacterPositionEvent {
+//   id: string;
+//   position: Vector3;
+// }
+// /**
+//  * Sent and recieved when a character rotates
+//  */
+// export interface ICharacterRotationEvent {
+//   id: string;
+//   rotation: Vector3;
+// }
+// /**
+//  * The user lets the apps know it's still there
+//  */
+// export interface ICharacterPingEvent {
+//   id: string;
+// }
+// export type OptionalError = Error | undefined;
+// export type EventResultTuple = [boolean, OptionalError];
+// export interface ITimerHashTable {
+//   [key: string]: number | NodeJS.Timer | any;
+// }
+// export interface ICharacterHashTable {
+//   [key: string]: Character;
+// }
+// const characterDoesNotExistError = new Error("the character doesn't exist");
+// /**
+//  * Manage some state for all the connected users. It's an isomorphic
+//  * class being used on clients and the server.
+//  */
+// export class CharacterManager extends EventEmitter {
+//   public characters: ICharacterHashTable = {};
+//   public expirationTimers: ITimerHashTable = {};
+//   /**
+//    * Stop a timer that expires a Character
+//    */
+//   public cancelExpiration(id: string): void {
+//     if (this.expirationTimers[id] === undefined) {
+//       return;
+//     }
+//     clearTimeout(this.expirationTimers[id]);
+//     delete this.expirationTimers[id];
+//   }
+//   /**
+//    * Start a timer that will remove a Character
+//    */
+//   public scheduleExpiration(id: string): void {
+//     if (this.characters[id] === undefined) {
+//       return;
+//     }
+//     this.cancelExpiration(id);
+//     const timer = setTimeout(() => this.characterPart({ id }), characterIdleMs);
+//     this.expirationTimers[id] = timer;
+//   }
+//   public validationError(field: string): Error {
+//     return new Error(`CharacterManager: event validation error → ${field}`);
+//   }
+//   /**
+//    * When the characters join we want to validate then add them into the list
+//    */
+//   public characterJoin(joinEvent: ICharacterJoinEvent): EventResultTuple {
+//     const { characters } = this;
+//     const { id, username, rotation } = joinEvent;
+//     const { position } = joinEvent;
+//     if (isValidId(id) === false) {
+//       return [false, this.validationError("id")];
+//     }
+//     if (isValidUsername(username) === false) {
+//       return [false, this.validationError("username")];
+//     }
+//     if (isValidVector3Component(position) === false) {
+//       return [false, this.validationError("position")];
+//     }
+//     if (isValidVector3Component(rotation) === false) {
+//       return [false, this.validationError("rotation")];
+//     }
+//     this.scheduleExpiration(id);
+//     const char = characters[id] || new Character();
+//     char.id = id;
+//     char.username = username;
+//     char.position = position;
+//     char.rotation = rotation;
+//     this.characters[id] = char;
+//     return [true, undefined];
+//   }
+//   /**
+//    * Remove a character from the list
+//    */
+//   public characterPart(partEvent: ICharacterPartEvent): EventResultTuple {
+//     const { id } = partEvent;
+//     this.cancelExpiration(id);
+//     delete this.characters[id];
+//     return [true, undefined];
+//   }
+//   /**
+//    * A user decides to change their randomized name
+//    */
+//   public updateCharacterUsername(
+//     usernameEvent: ICharacterUsernameEvent
+//   ): EventResultTuple {
+//     const { characters } = this;
+//     const { id, username } = usernameEvent;
+//     if (isValidId(id) === false) {
+//       return [false, this.validationError("id")];
+//     }
+//     if (isValidUsername(username) === false) {
+//       return [false, this.validationError("username")];
+//     }
+//     if (characters[id] === undefined) {
+//       return [false, characterDoesNotExistError];
+//     }
+//     this.scheduleExpiration(id);
+//     this.characters[id].username = username;
+//     return [true, undefined];
+//   }
+//   /**
+//    * Handle each user's {x,y,z} movement
+//    */
+//   public updateCharacterPosition(
+//     positionEvent: ICharacterPositionEvent
+//   ): EventResultTuple {
+//     const { characters } = this;
+//     const { id } = positionEvent;
+//     const { position } = positionEvent;
+//     if (isValidId(id) === false) {
+//       return [false, this.validationError("id")];
+//     }
+//     if (isValidVector3Component(position) === false) {
+//       return [false, this.validationError("position")];
+//     }
+//     if (characters[id] === undefined) {
+//       return [false, characterDoesNotExistError];
+//     }
+//     this.scheduleExpiration(id);
+//     this.characters[id].position = position;
+//     return [true, undefined];
+//   }
+//   /**
+//    * Handle the {x,y,z} of where the users are looking
+//    */
+//   public updateCharacterRotation(
+//     rotationEvent: ICharacterRotationEvent
+//   ): EventResultTuple {
+//     const { characters } = this;
+//     const { id, rotation } = rotationEvent;
+//     if (isValidId(id) === false) {
+//       return [false, this.validationError("id")];
+//     }
+//     if (isValidVector3Component(rotation) === false) {
+//       return [false, this.validationError("rotation")];
+//     }
+//     if (characters[id] === undefined) {
+//       return [false, characterDoesNotExistError];
+//     }
+//     this.scheduleExpiration(id);
+//     this.characters[id].rotation = rotation;
+//     return [true, undefined];
+//   }
+//   /**
+//    * Refresh the timer that will expire a character.
+//    */
+//   public ping(pingEvent: ICharacterPingEvent): EventResultTuple {
+//     const { id } = pingEvent;
+//     if (isValidId(id) === false) {
+//       return [false, this.validationError("id")];
+//     }
+//     if (this.characters[id] === undefined) {
+//       return [false, characterDoesNotExistError];
+//     }
+//     this.scheduleExpiration(id);
+//     return [true, undefined];
+//   }
+//   public characterList(): Character[] {
+//     const { characters } = this;
+//     return Object.keys(characters).map((key) => characters[key]);
+//   }
+// }

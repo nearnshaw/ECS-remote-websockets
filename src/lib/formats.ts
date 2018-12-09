@@ -1,9 +1,4 @@
-import { Vector3Component } from "decentraland-api";
 import { boundsMax, boundsMin } from "./config";
-
-const isNumber = require("lodash/isNumber");
-const isFinite = require("lodash/isFinite");
-const clamp = require("lodash/clamp");
 
 const validIdPattern = /^character-\d{5,20}$/;
 const validUsernamePattern = /^[0-9a-zA-Z\-\_\.\ ]{3,20}$/;
@@ -36,7 +31,7 @@ export const isValidUsername = (username: string): boolean =>
  */
 export const isValidNumber = (num: number) =>
   // numeric
-  isNumber(num) === true &&
+  isNaN(num) === false &&
   // not infinity, not NaN
   isFinite(num) === true;
 
@@ -52,7 +47,7 @@ export const isValidBoundedNumber = (num: number): boolean =>
 /**
  * Returns true if the Vector3Component has valid coordinates
  */
-export const isValidVector3Component = (v3: Vector3Component): boolean =>
+export const isValidVector3Component = (v3: Vector3): boolean =>
   isValidNumber(v3.x) === true &&
   isValidNumber(v3.y) === true &&
   isValidNumber(v3.z) === true;
@@ -60,7 +55,7 @@ export const isValidVector3Component = (v3: Vector3Component): boolean =>
 /**
  * Validates a Vector3Component as being in bounds
  */
-export const isValidBoundedVector3Component = (v3: Vector3Component): boolean =>
+export const isValidBoundedVector3Component = (v3: Vector3): boolean =>
   isValidBoundedNumber(v3.x) === true &&
   isValidBoundedNumber(v3.y) === true &&
   isValidBoundedNumber(v3.z) === true;
@@ -68,14 +63,20 @@ export const isValidBoundedVector3Component = (v3: Vector3Component): boolean =>
 /**
  * Clamp a number to the configured bounds
  */
-export const clampNumber = (num: number): number =>
-  clamp(num, boundsMin, boundsMax);
+export function clampNumber(num: number){
+  if(num < boundsMin){ return 0}
+  if (num > boundsMax){return 10}
+  return num
+}
 
 /**
  * Limit the {x,y,z} of a Vector3Component object to the configured bounds
  */
-export const clampVector3 = (v3: Vector3Component): Vector3Component => ({
-  x: clampNumber(v3.x),
-  y: clampNumber(v3.y),
-  z: clampNumber(v3.z),
-});
+export const clampVector3 = (v3: Vector3): Vector3 => new Vector3(
+  clampNumber(v3.x),
+  clampNumber(v3.y),
+  clampNumber(v3.z)
+  )
+
+
+
