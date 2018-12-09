@@ -7,7 +7,7 @@ import { Character } from "./lib/character";
 //   ICharacterRotationEvent,
 //   ICharacterUsernameEvent,
 // } from "./lib/character-manager";
-import { socketHost, socketPath } from "./lib/config";
+import { socketHost, socketPath, doorDist } from "./lib/config";
 import { isValidBoundedVector3Component, isValidUsername } from "./lib/formats";
 
 @Component('fallInPosition')
@@ -30,8 +30,8 @@ const fallingObjects = engine.getComponentGroup(FallInPosition)
 export class SlideDoor {
   progress: number = 0
   closed: boolean = true
-  doorOpen: number = 5
-  doorClosed: number = 3
+  openPos: number = 5
+  closedPos: number = 3
 }
 
 const doors = engine.getComponentGroup(SlideDoor)
@@ -63,7 +63,7 @@ export class FallIntoPlace implements ISystem {
           let transform = objects[i].get(Transform)
           state.progress += dt
           transform.position.y = Scalar.Lerp(defaultTileY, state.finalY, state.progress)
-          if (state.progress > 0.1){
+          if (state.progress > 0.1 && i != objects.length){
             objects[i+1].get(FallInPosition).falling = true
           }
           if (state.progress > 1){
@@ -77,6 +77,33 @@ export class FallIntoPlace implements ISystem {
 
 // Add system to engine
 engine.addSystem(new FallIntoPlace())
+
+export class OpenDoor implements ISystem {
+ 
+  update(dt: number) {
+    for (let door of doors.entities) {
+      let state = door.get(SlideDoor)
+      let transform = door.get(Transform)
+      if (distance(transform.position, camera.position) < 2 ){
+        state.closed == false
+        log("door opening")
+      } else {
+        state.closed == true
+      }
+
+      if (state.closed == false && state.progress < 1) {
+        transform.position.y = Scalar.Lerp(state.closedPos, state.openPos, state.progress)
+        state.progress += dt/2
+      } else if (state.closed == true && state.progress > 0) {
+        transform.position.y = Scalar.Lerp(state.closedPos, state.openPos, state.progress)
+        state.progress -= dt/2
+      }
+    }
+  }
+}
+
+// Add system to engine
+engine.addSystem(new OpenDoor())
 
 /////////////////////////////
 
@@ -160,6 +187,10 @@ for (let a = gridMin; a < gridMax; a += 1) {
 //////////////////////
 // Helper functions
 
+// Track user position and rotation
+const camera = Camera.instance
+
+
 /**
  * Pythagoras' theorem implementation
  *
@@ -229,6 +260,7 @@ door.get(Transform).scale.set(2, 3, 0.01)
 door.set(new BoxShape())
 door.get(BoxShape).withCollisions = true
 door.set(new FallInPosition(1))
+door.set(new SlideDoor())
 door.set(doorMaterial)
 engine.addEntity(door)
 
@@ -273,3 +305,7 @@ textBox.get(TextShape).fontSize = 50
 textBox.get(TextShape).width = 1.5
 textBox.get(TextShape).height = 0.4
 engine.addEntity(textBox)
+
+
+
+//////////////////////////////

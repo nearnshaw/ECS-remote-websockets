@@ -35,3 +35,9 @@ export const boundsMax: number = 10;
  * Remember characters for this long when they go idle
  */
 export const characterIdleMs: number = 60000; // 1min in milliseconds
+
+
+/**
+ * How close should you stand for a door to open
+ */
+export const doorDist: number = 2

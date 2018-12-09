@@ -12,6 +12,16 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __values = (this && this.__values) || function (o) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
+    if (m) return m.call(o);
+    return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+};
 /*
 
 Settings for the scene and server.
@@ -47,6 +57,10 @@ define("lib/config", ["require", "exports"], function (require, exports) {
      * Remember characters for this long when they go idle
      */
     exports.characterIdleMs = 60000; // 1min in milliseconds
+    /**
+     * How close should you stand for a door to open
+     */
+    exports.doorDist = 2;
 });
 define("lib/formats", ["require", "exports", "lib/config"], function (require, exports, config_1) {
     "use strict";
@@ -168,8 +182,8 @@ define("game", ["require", "exports"], function (require, exports) {
         function SlideDoor() {
             this.progress = 0;
             this.closed = true;
-            this.doorOpen = 5;
-            this.doorClosed = 3;
+            this.openPos = 5;
+            this.closedPos = 3;
         }
         SlideDoor = __decorate([
             Component('slideDoor')
@@ -208,7 +222,7 @@ define("game", ["require", "exports"], function (require, exports) {
                         var transform = objects[i].get(Transform);
                         state.progress += dt;
                         transform.position.y = Scalar.Lerp(defaultTileY, state.finalY, state.progress);
-                        if (state.progress > 0.1) {
+                        if (state.progress > 0.1 && i != objects.length) {
                             objects[i + 1].get(FallInPosition).falling = true;
                         }
                         if (state.progress > 1) {
@@ -223,6 +237,46 @@ define("game", ["require", "exports"], function (require, exports) {
     exports.FallIntoPlace = FallIntoPlace;
     // Add system to engine
     engine.addSystem(new FallIntoPlace());
+    var OpenDoor = /** @class */ (function () {
+        function OpenDoor() {
+        }
+        OpenDoor.prototype.update = function (dt) {
+            var e_1, _a;
+            try {
+                for (var _b = __values(doors.entities), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var door_1 = _c.value;
+                    var state = door_1.get(SlideDoor);
+                    var transform = door_1.get(Transform);
+                    if (distance(transform.position, camera.position) < 2) {
+                        state.closed == false;
+                        log("door opening");
+                    }
+                    else {
+                        state.closed == true;
+                    }
+                    if (state.closed == false && state.progress < 1) {
+                        transform.position.y = Scalar.Lerp(state.closedPos, state.openPos, state.progress);
+                        state.progress += dt / 2;
+                    }
+                    else if (state.closed == true && state.progress > 0) {
+                        transform.position.y = Scalar.Lerp(state.closedPos, state.openPos, state.progress);
+                        state.progress -= dt / 2;
+                    }
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+        };
+        return OpenDoor;
+    }());
+    exports.OpenDoor = OpenDoor;
+    // Add system to engine
+    engine.addSystem(new OpenDoor());
     /////////////////////////////
     //
     // the grid tiles on the ground are 5x5 of 2x2 tiles
@@ -277,6 +331,8 @@ define("game", ["require", "exports"], function (require, exports) {
     }
     //////////////////////
     // Helper functions
+    // Track user position and rotation
+    var camera = Camera.instance;
     /**
      * Pythagoras' theorem implementation
      *
@@ -336,6 +392,7 @@ define("game", ["require", "exports"], function (require, exports) {
     door.set(new BoxShape());
     door.get(BoxShape).withCollisions = true;
     door.set(new FallInPosition(1));
+    door.set(new SlideDoor());
     door.set(doorMaterial);
     engine.addEntity(door);
     //// Username editor
@@ -376,6 +433,7 @@ define("game", ["require", "exports"], function (require, exports) {
     textBox.get(TextShape).height = 0.4;
     engine.addEntity(textBox);
 });
+//////////////////////////////
 // /*
 // + Character state
 // + CharacterManager manages a collection of Character states
