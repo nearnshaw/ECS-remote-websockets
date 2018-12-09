@@ -12,16 +12,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __values = (this && this.__values) || function (o) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
-    if (m) return m.call(o);
-    return {
-        next: function () {
-            if (o && i >= o.length) o = void 0;
-            return { value: o && o[i++], done: !o };
-        }
-    };
-};
 /*
 
 Settings for the scene and server.
@@ -164,6 +154,7 @@ define("game", ["require", "exports"], function (require, exports) {
             this.finalY = y;
             this.progress = 0;
             this.settled = false;
+            this.falling = false;
         }
         FallInPosition = __decorate([
             Component('fallInPosition'),
@@ -177,6 +168,8 @@ define("game", ["require", "exports"], function (require, exports) {
         function SlideDoor() {
             this.progress = 0;
             this.closed = true;
+            this.doorOpen = 5;
+            this.doorClosed = 3;
         }
         SlideDoor = __decorate([
             Component('slideDoor')
@@ -200,27 +193,28 @@ define("game", ["require", "exports"], function (require, exports) {
         function FallIntoPlace() {
         }
         FallIntoPlace.prototype.update = function (dt) {
-            var e_1, _a;
-            try {
-                for (var _b = __values(fallingObjects.entities), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var object = _c.value;
-                    var state = object.get(FallInPosition);
-                    var transform = object.get(Transform);
+            for (var i = 0; i < fallingObjects.entities.length; i++) {
+                var state = fallingObjects.entities[i].get(FallInPosition);
+                if (state.falling == false) {
+                    // check if the first object is not falling already
+                    if (!fallingObjects.entities[0].get(FallInPosition).falling) {
+                        fallingObjects.entities[0].get(FallInPosition).falling = true;
+                    }
+                    break;
+                }
+                else {
                     if (!state.settled) {
-                        state.progress -= dt;
+                        var transform = fallingObjects.entities[i].get(Transform);
+                        state.progress += dt;
                         transform.position.y = Scalar.Lerp(defaultTileY, state.finalY, state.progress);
-                        if (state.progress < 0) {
+                        if (state.progress > 0.1) {
+                            fallingObjects.entities[i + 1].get(FallInPosition).falling = true;
+                        }
+                        if (state.progress > 1) {
                             state.settled = true;
                         }
                     }
                 }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_1) throw e_1.error; }
             }
         };
         return FallIntoPlace;
@@ -274,8 +268,8 @@ define("game", ["require", "exports"], function (require, exports) {
             tile.add(new Transform());
             tile.get(Transform).position.set(a * 2 + 1, defaultTileY, b * 2 + 1);
             tile.get(Transform).rotation.eulerAngles = new Vector3(90, 0, 0);
-            tile.get(Transform).scale.set(2, 0.1, 2);
-            tile.set(new FallInPosition(0));
+            tile.get(Transform).scale.set(2, 2, 2);
+            tile.set(new FallInPosition(0.25));
             tile.set(new TileColor());
             engine.addEntity(tile);
         }
@@ -319,6 +313,7 @@ define("game", ["require", "exports"], function (require, exports) {
     var leftWall = new Entity();
     leftWall.set(new Transform());
     leftWall.get(Transform).position.set(2, defaultTileY, 0.5);
+    leftWall.get(Transform).scale.set(4, 3, 0.03);
     leftWall.set(new BoxShape());
     leftWall.get(BoxShape).withCollisions = true;
     leftWall.set(new FallInPosition(1));
@@ -327,6 +322,7 @@ define("game", ["require", "exports"], function (require, exports) {
     var rightWall = new Entity();
     rightWall.set(new Transform());
     rightWall.get(Transform).position.set(8, defaultTileY, 0.5);
+    rightWall.get(Transform).scale.set(4, 3, 0.03);
     rightWall.set(new BoxShape());
     rightWall.get(BoxShape).withCollisions = true;
     rightWall.set(new FallInPosition(1));
@@ -334,7 +330,8 @@ define("game", ["require", "exports"], function (require, exports) {
     engine.addEntity(rightWall);
     var door = new Entity();
     door.set(new Transform());
-    door.get(Transform).position.set(8, defaultTileY, 0.5);
+    door.get(Transform).position.set(5, defaultTileY, 0.5);
+    door.get(Transform).scale.set(2, 3, 0.01);
     door.set(new BoxShape());
     door.get(BoxShape).withCollisions = true;
     door.set(new FallInPosition(1));

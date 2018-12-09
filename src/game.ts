@@ -15,10 +15,12 @@ export class FallInPosition {
   finalY: number
   progress: number
   settled: boolean
+  falling: boolean
   constructor(y: number){
     this.finalY = y
     this.progress = 0
     this.settled = false
+    this.falling = false
   }
 }
 
@@ -28,6 +30,8 @@ const fallingObjects = engine.getComponentGroup(FallInPosition)
 export class SlideDoor {
   progress: number = 0
   closed: boolean = true
+  doorOpen: number = 5
+  doorClosed: number = 3
 }
 
 const doors = engine.getComponentGroup(SlideDoor)
@@ -44,17 +48,28 @@ const tiles = engine.getComponentGroup(TileColor)
 export class FallIntoPlace implements ISystem {
  
   update(dt: number) {
-    for (let object of fallingObjects.entities) {
-      let state = object.get(FallInPosition)
-      let transform = object.get(Transform)
-      if (!state.settled){
-
-        state.progress -= dt
-        transform.position.y = Scalar.Lerp(defaultTileY, state.finalY, state.progress)
-        if (state.progress < 0){
-          state.settled = true
+    for (let i = 0; i < fallingObjects.entities.length; i ++) {
+      let state = fallingObjects.entities[i].get(FallInPosition)
+      if (state.falling == false){
+        // check if the first object is not falling already
+        if (!fallingObjects.entities[0].get(FallInPosition).falling){
+          fallingObjects.entities[0].get(FallInPosition).falling = true
         }
+        break
       }
+      else {
+        if (!state.settled){
+          let transform = fallingObjects.entities[i].get(Transform)
+          state.progress += dt
+          transform.position.y = Scalar.Lerp(defaultTileY, state.finalY, state.progress)
+          if (state.progress > 0.1){
+            fallingObjects.entities[i+1].get(FallInPosition).falling = true
+          }
+          if (state.progress > 1){
+            state.settled = true
+          }
+        }
+      }  
     }
   }
 }
@@ -131,10 +146,9 @@ for (let a = gridMin; a < gridMax; a += 1) {
     tile.add(new Transform())
     tile.get(Transform).position.set(a * 2 + 1, defaultTileY, b * 2 + 1)
     tile.get(Transform).rotation.eulerAngles = new Vector3(90, 0, 0)
-    tile.get(Transform).scale.set(2,0.1,2)
-    tile.set(new FallInPosition(0))
+    tile.get(Transform).scale.set(2,2,2)
+    tile.set(new FallInPosition(0.25))
     tile.set(new TileColor())
-
 
     engine.addEntity(tile)
   }
@@ -190,6 +204,7 @@ engine.addEntity(billboardBox)
 let leftWall = new Entity()
 leftWall.set(new Transform())
 leftWall.get(Transform).position.set(2, defaultTileY, 0.5)
+leftWall.get(Transform).scale.set(4, 3, 0.03)
 leftWall.set(new BoxShape())
 leftWall.get(BoxShape).withCollisions = true
 leftWall.set(new FallInPosition(1))
@@ -199,6 +214,7 @@ engine.addEntity(leftWall)
 let rightWall = new Entity()
 rightWall.set(new Transform())
 rightWall.get(Transform).position.set(8, defaultTileY, 0.5)
+rightWall.get(Transform).scale.set(4, 3, 0.03)
 rightWall.set(new BoxShape())
 rightWall.get(BoxShape).withCollisions = true
 rightWall.set(new FallInPosition(1))
@@ -207,7 +223,8 @@ engine.addEntity(rightWall)
 
 let door = new Entity()
 door.set(new Transform())
-door.get(Transform).position.set(8, defaultTileY, 0.5)
+door.get(Transform).position.set(5, defaultTileY, 0.5)
+door.get(Transform).scale.set(2, 3, 0.01)
 door.set(new BoxShape())
 door.get(BoxShape).withCollisions = true
 door.set(new FallInPosition(1))
