@@ -193,22 +193,23 @@ define("game", ["require", "exports"], function (require, exports) {
         function FallIntoPlace() {
         }
         FallIntoPlace.prototype.update = function (dt) {
-            for (var i = 0; i < fallingObjects.entities.length; i++) {
-                var state = fallingObjects.entities[i].get(FallInPosition);
+            var objects = fallingObjects.entities;
+            for (var i = 0; i < objects.length; i++) {
+                var state = objects[i].get(FallInPosition);
                 if (state.falling == false) {
                     // check if the first object is not falling already
-                    if (!fallingObjects.entities[0].get(FallInPosition).falling) {
-                        fallingObjects.entities[0].get(FallInPosition).falling = true;
+                    if (!objects[0].get(FallInPosition).falling) {
+                        objects[0].get(FallInPosition).falling = true;
                     }
                     break;
                 }
                 else {
                     if (!state.settled) {
-                        var transform = fallingObjects.entities[i].get(Transform);
+                        var transform = objects[i].get(Transform);
                         state.progress += dt;
                         transform.position.y = Scalar.Lerp(defaultTileY, state.finalY, state.progress);
                         if (state.progress > 0.1) {
-                            fallingObjects.entities[i + 1].get(FallInPosition).falling = true;
+                            objects[i + 1].get(FallInPosition).falling = true;
                         }
                         if (state.progress > 1) {
                             state.settled = true;
