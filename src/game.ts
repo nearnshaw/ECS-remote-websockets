@@ -30,8 +30,8 @@ const fallingObjects = engine.getComponentGroup(FallInPosition)
 export class SlideDoor {
   progress: number = 0
   closed: boolean = true
-  openPos: number = 5
-  closedPos: number = 3
+  openPos: number = 4
+  closedPos: number = 1.5
 }
 
 const doors = engine.getComponentGroup(SlideDoor)
@@ -63,7 +63,7 @@ export class FallIntoPlace implements ISystem {
           let transform = objects[i].get(Transform)
           state.progress += dt
           transform.position.y = Scalar.Lerp(defaultTileY, state.finalY, state.progress)
-          if (state.progress > 0.1 && i != objects.length){
+          if (state.progress > 0.1 && i != objects.length - 1){
             objects[i+1].get(FallInPosition).falling = true
           }
           if (state.progress > 1){
@@ -85,12 +85,11 @@ export class OpenDoor implements ISystem {
       let state = door.get(SlideDoor)
       let transform = door.get(Transform)
       if (distance(transform.position, camera.position) < 2 ){
-        state.closed == false
-        log("door opening")
+        state.closed = false
       } else {
-        state.closed == true
+        state.closed = true
       }
-
+      //log("prog: " + state.progress + " & closed: " + state.closed)
       if (state.closed == false && state.progress < 1) {
         transform.position.y = Scalar.Lerp(state.closedPos, state.openPos, state.progress)
         state.progress += dt/2
@@ -259,7 +258,7 @@ door.get(Transform).position.set(5, defaultTileY, 0.5)
 door.get(Transform).scale.set(2, 3, 0.01)
 door.set(new BoxShape())
 door.get(BoxShape).withCollisions = true
-door.set(new FallInPosition(1))
+door.set(new FallInPosition(1.5))
 door.set(new SlideDoor())
 door.set(doorMaterial)
 engine.addEntity(door)
