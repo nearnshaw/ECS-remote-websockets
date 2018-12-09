@@ -218,18 +218,19 @@ engine.addEntity(door)
 //// Username editor
 
 let background = new Entity()
-background.set(new Transform)
+background.set(new Transform())
 background.get(Transform).position.set(5, defaultTileY, 9.5)
 background.get(Transform).scale.set(1.5, 0.8, 0.01)
 background.get(Transform).rotation.eulerAngles = new Vector3(30, 0, 0)
 background.set(signMaterial)
+background.set(new PlaneShape())
 background.set(new FallInPosition(1))
-background.get(BoxShape).withCollisions = true
+background.get(PlaneShape).withCollisions = true
 engine.addEntity(background)
 
 let message = new Entity()
 message.setParent(background)
-message.set(new Transform)
+message.set(new Transform())
 message.get(Transform).position.set(0, 0.3, 0)
 message.set(new TextShape("Change your username"))
 message.get(TextShape).fontFamily = textFontFamily
@@ -243,7 +244,7 @@ engine.addEntity(message)
 
 let textBox = new Entity()
 textBox.setParent(background)
-textBox.set(new Transform)
+textBox.set(new Transform())
 textBox.get(Transform).position.set(0, 0.3, 0)
 textBox.set(new TextShape())
 textBox.get(TextShape).fontFamily = textFontFamily
