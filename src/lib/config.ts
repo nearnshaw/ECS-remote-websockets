@@ -22,7 +22,7 @@ export const socketPath: string = `/${appKey}`;
 /**
  * The socket.io client connects to a different port than the preview
  */
-export const socketHost = "http://127.0.0.1:8835";
+export const socketHost = "wss://127.0.0.1:8835";
 
 /**
  * The min-max ranges {x,y,z} the players can go and have their actions
@@ -41,3 +41,7 @@ export const characterIdleMs: number = 60000; // 1min in milliseconds
  * How close should you stand for a door to open
  */
 export const doorDist: number = 2
+
+
+// Ping interval, in seconds
+export const pingInterval = 5

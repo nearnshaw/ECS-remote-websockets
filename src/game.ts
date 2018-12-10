@@ -7,7 +7,7 @@ import { Character } from "./lib/character";
 //   ICharacterRotationEvent,
 //   ICharacterUsernameEvent,
 // } from "./lib/character-manager";
-import { socketHost, socketPath, doorDist } from "./lib/config";
+import { socketHost, socketPath, doorDist, pingInterval} from "./lib/config";
 import { isValidBoundedVector3Component, isValidUsername } from "./lib/formats";
 
 @Component('fallInPosition')
@@ -105,7 +105,6 @@ export class OpenDoor implements ISystem {
 engine.addSystem(new OpenDoor())
 
 export class TileColors implements ISystem {
- 
   update(dt: number) {
     for (let tile of tiles.entities) {
       let transform = tile.get(Transform)
@@ -128,6 +127,26 @@ export class TileColors implements ISystem {
 // Add system to engine
 engine.addSystem(new TileColors())
 
+
+// send data to server
+
+
+
+export class PingServer implements ISystem {
+  update(dt: number) {
+    toNextPing -= dt
+    if (toNextPing<0){
+      toNextPing = pingInterval
+      socket.send("character-ping")
+      //socket.send("character-ping", { id })
+    }
+  }
+}
+
+// Add system to engine
+engine.addSystem(new PingServer())
+
+
 /////////////////////////////
 
 
@@ -147,6 +166,7 @@ const defaultTileY = 10
 // const ghostScale = { x: 1, y: 0.5, z: 1 };
 // const ghostColor = "#EFEFEF";
 
+let toNextPing = pingInterval
 
 //
 // use the same text for everything
@@ -232,6 +252,13 @@ function distance(pos1: Vector3, pos2: Vector3): number {
   const b = pos1.z - pos2.z;
   return Math.sqrt(a * a + b * b);
 }
+
+///////////////////////
+// Character manager set up
+
+// Create a random ID for the user
+
+const id = Math.floor( Math.random()*1000)
 
 /**
  * Returns true if the character is inside the configured bounds, 0 to 10
@@ -340,3 +367,13 @@ engine.addEntity(textBox)
 
 
 //////////////////////////////
+
+//Websockets
+
+
+// socketHost defined in config file
+var socket = new WebSocket(socketHost)
+
+socket.onmessage = function(event) {
+  log("WebSocket message received:", event)
+}

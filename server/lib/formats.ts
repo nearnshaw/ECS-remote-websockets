@@ -2,6 +2,7 @@ import { boundsMax, boundsMin } from "./config";
 
 const validIdPattern = /^character-\d{5,20}$/;
 const validUsernamePattern = /^[0-9a-zA-Z\-\_\.\ ]{3,20}$/;
+import { Vector3 } from "decentraland-ecs"
 
 /**
  * Generate a random id for the character

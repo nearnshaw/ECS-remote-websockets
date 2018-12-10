@@ -13,7 +13,7 @@ import { EventEmitter } from "events";
 import { Character } from "./character";
 import { characterIdleMs } from "./config";
 import { isValidId, isValidUsername, isValidVector3Component } from "./formats";
-
+import { Vector3 } from "decentraland-ecs"
 /**
  * Sent and received when new users join the server
  */

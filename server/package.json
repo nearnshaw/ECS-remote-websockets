@@ -9,7 +9,7 @@
     "@types/lodash": "^4.14.117",
     "@types/socket.io": "^1.4.38",
     "cors": "^2.8.4",
-    "decentraland-api": "next",
+    "decentraland-ecs": "next",
     "express": "^4.16.4",
     "nodemon": "^1.18.4",
     "socket.io": "^2.1.1",
