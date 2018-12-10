@@ -38,7 +38,7 @@ const doors = engine.getComponentGroup(SlideDoor)
 
 @Component('tileColor')
 export class TileColor {
- color: Material
+ shadeNumber: number = 0
 }
 
 const tiles = engine.getComponentGroup(TileColor)
@@ -104,6 +104,30 @@ export class OpenDoor implements ISystem {
 // Add system to engine
 engine.addSystem(new OpenDoor())
 
+export class TileColors implements ISystem {
+ 
+  update(dt: number) {
+    for (let tile of tiles.entities) {
+      let transform = tile.get(Transform)
+      let tileData = tile.get(TileColor)
+      tileData.shadeNumber = 0
+      // for each character {
+      let dist = distance(transform.position, camera.position)
+      dist = (dist * -1) + 8
+      if(dist < 0){dist = 0}
+      tileData.shadeNumber += dist
+      // }
+      if (tileData.shadeNumber > tileMaterials.length-1){tileData.shadeNumber = tileMaterials.length-1}
+      let index = Math.floor(tileData.shadeNumber)
+      //log(index)
+      tile.set(tileMaterials[index])
+    }
+  }
+}
+
+// Add system to engine
+engine.addSystem(new TileColors())
+
 /////////////////////////////
 
 
@@ -154,7 +178,15 @@ doorMaterial.hasAlpha = true
 doorMaterial.alpha = 0.6
 doorMaterial.transparencyMode = 2
 
+let tileColors = ["#FCFDFD","#F2F3F4", "#E5E7E9", "#D7DBDD", "#CACFD2" ,"#A6ACAF" ,"#797D7F", "#626567"]
 
+let tileMaterials = []
+
+for( let i = 0; i < tileColors.length ; i++){
+  let material = new Material()
+  material.albedoColor = Color3.FromHexString(tileColors[i])
+  tileMaterials.push(material)
+}
 
 
 

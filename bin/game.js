@@ -194,6 +194,7 @@ define("game", ["require", "exports"], function (require, exports) {
     var doors = engine.getComponentGroup(SlideDoor);
     var TileColor = /** @class */ (function () {
         function TileColor() {
+            this.shadeNumber = 0;
         }
         TileColor = __decorate([
             Component('tileColor')
@@ -277,6 +278,46 @@ define("game", ["require", "exports"], function (require, exports) {
     exports.OpenDoor = OpenDoor;
     // Add system to engine
     engine.addSystem(new OpenDoor());
+    var TileColors = /** @class */ (function () {
+        function TileColors() {
+        }
+        TileColors.prototype.update = function (dt) {
+            var e_2, _a;
+            try {
+                for (var _b = __values(tiles.entities), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var tile = _c.value;
+                    var transform = tile.get(Transform);
+                    var tileData = tile.get(TileColor);
+                    tileData.shadeNumber = 0;
+                    // for each character {
+                    var dist = distance(transform.position, camera.position);
+                    dist = (dist * -1) + 8;
+                    if (dist < 0) {
+                        dist = 0;
+                    }
+                    tileData.shadeNumber += dist;
+                    // }
+                    if (tileData.shadeNumber > tileMaterials.length - 1) {
+                        tileData.shadeNumber = tileMaterials.length - 1;
+                    }
+                    var index = Math.floor(tileData.shadeNumber);
+                    //log(index)
+                    tile.set(tileMaterials[index]);
+                }
+            }
+            catch (e_2_1) { e_2 = { error: e_2_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_2) throw e_2.error; }
+            }
+        };
+        return TileColors;
+    }());
+    exports.TileColors = TileColors;
+    // Add system to engine
+    engine.addSystem(new TileColors());
     /////////////////////////////
     //
     // the grid tiles on the ground are 5x5 of 2x2 tiles
@@ -313,6 +354,13 @@ define("game", ["require", "exports"], function (require, exports) {
     doorMaterial.hasAlpha = true;
     doorMaterial.alpha = 0.6;
     doorMaterial.transparencyMode = 2;
+    var tileColors = ["#FCFDFD", "#F2F3F4", "#E5E7E9", "#D7DBDD", "#CACFD2", "#A6ACAF", "#797D7F", "#626567"];
+    var tileMaterials = [];
+    for (var i = 0; i < tileColors.length; i++) {
+        var material = new Material();
+        material.albedoColor = Color3.FromHexString(tileColors[i]);
+        tileMaterials.push(material);
+    }
     /**
      * Instantiate the tiles just above the board
      */
