@@ -12,8 +12,8 @@ will try to use to goof around with servers.
 import { EventEmitter } from "events";
 import { Character } from "./character";
 import { characterIdleMs } from "./config";
-import { isValidId, isValidUsername, isValidVector3Component } from "./formats";
-import { Vector3 } from "decentraland-ecs"
+import { isValidId, isValidUsername, isValidVector3, isValidQuaternion } from "./formats";
+import { Vector3, Quaternion } from "decentraland-ecs"
 /**
  * Sent and received when new users join the server
  */
@@ -21,7 +21,7 @@ export interface ICharacterJoinEvent {
   id: string;
   username: string;
   position: Vector3;
-  rotation: Vector3;
+  rotation: Quaternion;
 }
 
 /**
@@ -52,7 +52,7 @@ export interface ICharacterPositionEvent {
  */
 export interface ICharacterRotationEvent {
   id: string;
-  rotation: Vector3;
+  rotation: Quaternion;
 }
 
 /**
@@ -127,11 +127,11 @@ export class CharacterManager extends EventEmitter {
       return [false, this.validationError("username")];
     }
 
-    if (isValidVector3Component(position) === false) {
+    if (isValidVector3(position) === false) {
       return [false, this.validationError("position")];
     }
 
-    if (isValidVector3Component(rotation) === false) {
+    if (isValidQuaternion(rotation) === false) {
       return [false, this.validationError("rotation")];
     }
 
@@ -197,7 +197,7 @@ export class CharacterManager extends EventEmitter {
       return [false, this.validationError("id")];
     }
 
-    if (isValidVector3Component(position) === false) {
+    if (isValidVector3(position) === false) {
       return [false, this.validationError("position")];
     }
 
@@ -224,7 +224,7 @@ export class CharacterManager extends EventEmitter {
       return [false, this.validationError("id")];
     }
 
-    if (isValidVector3Component(rotation) === false) {
+    if (isValidQuaternion(rotation) === false) {
       return [false, this.validationError("rotation")];
     }
 

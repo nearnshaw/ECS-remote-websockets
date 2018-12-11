@@ -1,12 +1,12 @@
 import { Character } from "./lib/character";
-// import {
-//   CharacterManager,
-//   ICharacterJoinEvent,
-//   ICharacterPartEvent,
-//   ICharacterPositionEvent,
-//   ICharacterRotationEvent,
-//   ICharacterUsernameEvent,
-// } from "./lib/character-manager";
+import {
+  CharacterManager,
+  ICharacterJoinEvent,
+  ICharacterPartEvent,
+  ICharacterPositionEvent,
+  ICharacterRotationEvent,
+  ICharacterUsernameEvent,
+} from "./lib/character-manager";
 import { socketHost, socketPath, doorDist, pingInterval} from "./lib/config";
 import { isValidBoundedVector3Component, isValidUsername } from "./lib/formats";
 
@@ -138,6 +138,23 @@ export class PingServer implements ISystem {
     if (toNextPing<0){
       toNextPing = pingInterval
       socket.send("character-ping")
+      //JSON.strinigy()
+      //socket.send("character-ping", { id })
+    }
+  }
+}
+
+// Add system to engine
+engine.addSystem(new PingServer())
+
+
+export class SendUserData implements ISystem {
+  update(dt: number) {
+    toNextPing -= dt
+    if (toNextPing<0){
+      toNextPing = pingInterval
+      socket.send("character-ping")
+      //JSON.strinigy()
       //socket.send("character-ping", { id })
     }
   }
@@ -265,16 +282,16 @@ const id = Math.floor( Math.random()*1000)
  *
  * See ./config.ts
  */
-// const charInBounds = (char: Character) =>
-//   isValidBoundedVector3Component(char.position) === true;
+const charInBounds = (char: Character) =>
+  isValidBoundedVector3Component(char.position) === true;
 
-//
-// CharacterManager holds information about the other characters
-//
-// const characterManager = new CharacterManager();
 
-// // representing the viewer of this scene
-// let character = new Character();
+//CharacterManager holds information about the other characters
+
+const characterManager = new CharacterManager();
+
+// representing the viewer of this scene
+let character = new Character();
 
 
 /////////////////////////
@@ -376,4 +393,32 @@ var socket = new WebSocket(socketHost)
 
 socket.onmessage = function(event) {
   log("WebSocket message received:", event)
+}
+
+sendMsg("character-join")
+
+function sendMsg(message:string) {
+  // Construct a msg object containing the data the server needs to process the message from the chat client.
+  var msg = {
+    message: message,
+    id: id,
+    date: Date.now()
+  };
+
+  // Send the msg object as a JSON-formatted string.
+  socket.send(JSON.stringify(msg));
+}
+
+function sendPos() {
+  // Construct a msg object containing the data the server needs to process the message from the chat client.
+  var msg = {
+    message: "character-pos",
+    id: id,
+    pos: camera.position,
+    rot: camera.rotation,
+    date: Date.now()
+  };
+
+  // Send the msg object as a JSON-formatted string.
+  socket.send(JSON.stringify(msg));
 }

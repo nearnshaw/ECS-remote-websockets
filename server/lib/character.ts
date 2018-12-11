@@ -1,6 +1,7 @@
 
-import { randomId } from "./formats";
+import { randomId } from "./formats"
 import { Vector3 } from "decentraland-ecs"
+import { Quaternion } from "decentraland-ecs";
 
 /**
  * Representing a user in the scene. It is used both for
@@ -12,7 +13,7 @@ export class Character {
 
   public position: Vector3 = new Vector3(0, 0, 0)
 
-  public rotation: Vector3 = new Vector3(0, 0, 0)
+  public rotation: Quaternion = new Quaternion(0,0,0,0)
 
   constructor() {
     this.username = this.id;
