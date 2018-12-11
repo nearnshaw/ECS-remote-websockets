@@ -7,7 +7,7 @@ import {
   ICharacterRotationEvent,
   ICharacterUsernameEvent,
 } from "./lib/character-manager";
-import { socketHost, socketPath, doorDist, pingInterval} from "./lib/config";
+import { socketHost, socketPath, doorDist, pingInterval, updateInterval} from "./lib/config";
 import { isValidBoundedVector3Component, isValidUsername } from "./lib/formats";
 
 @Component('fallInPosition')
@@ -137,9 +137,7 @@ export class PingServer implements ISystem {
     toNextPing -= dt
     if (toNextPing<0){
       toNextPing = pingInterval
-      socket.send("character-ping")
-      //JSON.strinigy()
-      //socket.send("character-ping", { id })
+      sendMsg("character-ping")
     }
   }
 }
@@ -150,18 +148,16 @@ engine.addSystem(new PingServer())
 
 export class SendUserData implements ISystem {
   update(dt: number) {
-    toNextPing -= dt
+    toNextUpdate -= dt
     if (toNextPing<0){
-      toNextPing = pingInterval
-      socket.send("character-ping")
-      //JSON.strinigy()
-      //socket.send("character-ping", { id })
+      sendPos()
+      toNextUpdate = updateInterval
     }
   }
 }
 
 // Add system to engine
-engine.addSystem(new PingServer())
+engine.addSystem(new SendUserData())
 
 
 /////////////////////////////
@@ -184,6 +180,8 @@ const defaultTileY = 10
 // const ghostColor = "#EFEFEF";
 
 let toNextPing = pingInterval
+let toNextUpdate = updateInterval
+
 
 //
 // use the same text for everything

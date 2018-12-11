@@ -45,3 +45,6 @@ export const doorDist: number = 2
 
 // Ping interval, in seconds
 export const pingInterval = 5
+
+// Update pos interval, in seconds
+export const updateInterval = 0.2
