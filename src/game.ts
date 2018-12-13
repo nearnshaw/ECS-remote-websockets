@@ -239,7 +239,7 @@ for (let a = gridMin; a < gridMax; a += 1) {
     tile.add(new PlaneShape())
     tile.add(new Transform())
     tile.get(Transform).position.set(a * 2 + 1, defaultTileY, b * 2 + 1)
-    tile.get(Transform).rotation.eulerAngles = new Vector3(90, 0, 0)
+    tile.get(Transform).rotation.setEuler(90, 0, 0)
     tile.get(Transform).scale.set(2,2,2)
     tile.set(new FallInPosition(0.25))
     tile.set(new TileColor())
@@ -300,7 +300,7 @@ let billboardBox = new Entity()
 billboardBox.set(new Transform())
 billboardBox.get(Transform).position.set(5, defaultTileY, 9)
 billboardBox.get(Transform).scale.set(4, 1.5, 0.01)
-billboardBox.get(Transform).rotation.eulerAngles = new Vector3(-50, 0, 0)
+billboardBox.get(Transform).rotation.setEuler(-50, 0, 0)
 billboardBox.set(new PlaneShape())
 billboardBox.set(new FallInPosition(4))
 billboardBox.set(signMaterial)
@@ -344,7 +344,7 @@ let background = new Entity()
 background.set(new Transform())
 background.get(Transform).position.set(5, defaultTileY, 9.5)
 background.get(Transform).scale.set(1.5, 0.8, 0.01)
-background.get(Transform).rotation.eulerAngles = new Vector3(30, 0, 0)
+background.get(Transform).rotation.setEuler(30, 0, 0)
 background.set(signMaterial)
 background.set(new PlaneShape())
 background.set(new FallInPosition(1))
@@ -387,13 +387,19 @@ engine.addEntity(textBox)
 
 
 // socketHost defined in config file
-var socket = new WebSocket(socketHost)
+try{
+  var socket = new WebSocket(socketHost)
+  sendMsg("character-join")
+} catch
+{
+  log("couldn't connect to websockets server")
+}
+
 
 socket.onmessage = function(event) {
   log("WebSocket message received:", event)
 }
 
-sendMsg("character-join")
 
 function sendMsg(message:string) {
   // Construct a msg object containing the data the server needs to process the message from the chat client.

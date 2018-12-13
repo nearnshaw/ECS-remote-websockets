@@ -1,7 +1,6 @@
 
 import { randomId } from "./formats"
-import { Vector3 } from "decentraland-ecs"
-import { Quaternion } from "decentraland-ecs";
+import { Vector3, Quaternion } from "decentraland-ecs";
 
 /**
  * Representing a user in the scene. It is used both for
