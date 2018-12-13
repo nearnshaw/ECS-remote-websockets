@@ -91,11 +91,11 @@ export class OpenDoor implements ISystem {
       }
       //log("prog: " + state.progress + " & closed: " + state.closed)
       if (state.closed == false && state.progress < 1) {
-        transform.position.y = Scalar.Lerp(state.closedPos, state.openPos, state.progress)
         state.progress += dt/2
-      } else if (state.closed == true && state.progress > 0) {
         transform.position.y = Scalar.Lerp(state.closedPos, state.openPos, state.progress)
+      } else if (state.closed == true && state.progress > 0) {
         state.progress -= dt/2
+        transform.position.y = Scalar.Lerp(state.closedPos, state.openPos, state.progress)
       }
     }
   }
