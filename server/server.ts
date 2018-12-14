@@ -1,7 +1,8 @@
 import * as cors from "cors";
 import * as express from "express";
 import * as http from "http";
-import * as socketio from "socket.io";
+import * as WebSocket from 'ws';
+//import * as socketio from "socket.io";
 import {
   CharacterManager,
   ICharacterJoinEvent,
@@ -13,20 +14,44 @@ import {
 } from "./lib/character-manager";
 import { socketPath } from "./lib/config";
 
+
 const throttle = require("lodash/throttle");
 
 const { HTTP_HOST = "127.0.0.1", HTTP_PORT = "8835" } = process.env;
 const httpPort: number = parseInt(HTTP_PORT, 10);
 const expressApp: express.Application = express();
 const httpServer: http.Server = http.createServer(expressApp);
+const ws = new WebSocket.Server({ server:httpServer });
+
 const characterManager = new CharacterManager();
 
-// socket.io: receive messages from browser clients
-const socketServer: socketio.Server = socketio(httpServer, {
-  path: socketPath,
-  serveClient: false,
-  transports: ["websocket"],
+ws.on('connection', (ws: WebSocket) => {
+
+  //connection is up, let's add a simple simple event
+  ws.on('message', (message: string) => {
+
+      //log the received message and send it back to the client
+      console.log('received: %s', message);
+      ws.send(`Hello, you sent -> ${message}`);
+  });
+
+  //send immediatly a feedback to the incoming connection    
+  ws.send('Hi there, I am a WebSocket server');
 });
+
+//start our server
+httpServer.listen(process.env.PORT || HTTP_PORT, () => {
+  console.log(`Server started on port ${ws.address()} :)`);
+});
+
+
+
+//socket.io: receive messages from browser clients
+// const socketServer: socketio.Server = socketio(httpServer, {
+//   path: socketPath,
+//   serveClient: false,
+//   transports: ["websocket"],
+// });
 
 // we're communicating across different ports(origin) from the preview
 expressApp.use(cors());
@@ -38,7 +63,7 @@ function shutdown(code: number = 0): void {
   let exitCode: number = code;
 
   try {
-    socketServer.close();
+    ws.close();
   } catch (e) {
     console.error("error closing socket.io", e);
     exitCode = 1;
@@ -75,7 +100,7 @@ const socketError = (err: Error): void => console.error("socket error", err);
 /**
  * Each time a user connects it needs to relay all the messages around
  */
-function socketServerConnection(socket: socketio.Socket): void {
+function socketServerConnection(socket: WebSocket): void {
   let characterId: string | undefined;
   // console.log("socket connection", socket.id);
 
@@ -98,7 +123,7 @@ function socketServerConnection(socket: socketio.Socket): void {
       if (characterId !== undefined) {
         const partEvent = { id: characterId };
         characterManager.characterPart(partEvent);
-        socketServer.emit("character-part", partEvent);
+        //socketServer.emit("character-part", partEvent);
       }
     }
   );
@@ -112,7 +137,7 @@ function socketServerConnection(socket: socketio.Socket): void {
         // console.log("character join", joinEvent);
         const { id } = joinEvent;
         characterId = id;
-        socket.broadcast.emit("character-join", joinEvent);
+        //socket.broadcast.emit("character-join", joinEvent);
         introduceCharacters();
         return;
       }
@@ -130,7 +155,7 @@ function socketServerConnection(socket: socketio.Socket): void {
         // console.log("character part", partEvent);
         const { id } = partEvent;
         characterId = id;
-        socket.broadcast.emit("character-part", partEvent);
+        //socket.broadcast.emit("character-part", partEvent);
         introduceCharacters();
         return;
       }
@@ -148,7 +173,7 @@ function socketServerConnection(socket: socketio.Socket): void {
 
       if (success === true) {
         // console.log("character username", usernameEvent);
-        socket.broadcast.emit("character-username", usernameEvent);
+        //socket.broadcast.emit("character-username", usernameEvent);
         return;
       }
 
@@ -165,7 +190,7 @@ function socketServerConnection(socket: socketio.Socket): void {
 
       if (success === true) {
         // console.log("character position", positionEvent);
-        socket.broadcast.emit("character-position", positionEvent);
+        //socket.broadcast.emit("character-position", positionEvent);
         return;
       }
 
@@ -182,7 +207,7 @@ function socketServerConnection(socket: socketio.Socket): void {
 
       if (success === true) {
         // console.log("character rotation", rotationEvent);
-        socket.broadcast.emit("character-rotation", rotationEvent);
+        //socket.broadcast.emit("character-rotation", rotationEvent);
         return;
       }
 
@@ -222,8 +247,8 @@ httpServer.listen(httpPort, HTTP_HOST, httpServerListening);
 //
 // socket events
 //
-socketServer.on("connect", socketServerConnection);
-socketServer.on("error", socketServerError);
+ws.on("connect", socketServerConnection);
+ws.on("error", socketServerError);
 
 //
 // graceful shutdown

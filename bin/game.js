@@ -424,12 +424,12 @@ define("game", ["require", "exports", "lib/character", "lib/character-manager", 
                     }
                     //log("prog: " + state.progress + " & closed: " + state.closed)
                     if (state.closed == false && state.progress < 1) {
-                        transform.position.y = Scalar.Lerp(state.closedPos, state.openPos, state.progress);
                         state.progress += dt / 2;
+                        transform.position.y = Scalar.Lerp(state.closedPos, state.openPos, state.progress);
                     }
                     else if (state.closed == true && state.progress > 0) {
-                        transform.position.y = Scalar.Lerp(state.closedPos, state.openPos, state.progress);
                         state.progress -= dt / 2;
+                        transform.position.y = Scalar.Lerp(state.closedPos, state.openPos, state.progress);
                     }
                 }
             }
@@ -614,7 +614,7 @@ define("game", ["require", "exports", "lib/character", "lib/character-manager", 
     billboardBox.set(new Transform());
     billboardBox.get(Transform).position.set(5, defaultTileY, 9);
     billboardBox.get(Transform).scale.set(4, 1.5, 0.01);
-    billboardBox.get(Transform).rotation.eulerAngles = new Vector3(-50, 0, 0);
+    billboardBox.get(Transform).rotation.setEuler(-50, 0, 0);
     billboardBox.set(new PlaneShape());
     billboardBox.set(new FallInPosition(4));
     billboardBox.set(signMaterial);
@@ -652,7 +652,7 @@ define("game", ["require", "exports", "lib/character", "lib/character-manager", 
     background.set(new Transform());
     background.get(Transform).position.set(5, defaultTileY, 9.5);
     background.get(Transform).scale.set(1.5, 0.8, 0.01);
-    background.get(Transform).rotation.eulerAngles = new Vector3(30, 0, 0);
+    background.get(Transform).rotation.setEuler(30, 0, 0);
     background.set(signMaterial);
     background.set(new PlaneShape());
     background.set(new FallInPosition(1));
