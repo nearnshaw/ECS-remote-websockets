@@ -13,7 +13,9 @@ import { EventEmitter } from "events";
 import { Character } from "./character";
 import { characterIdleMs } from "./config";
 import { isValidId, isValidUsername, isValidVector3, isValidQuaternion } from "./formats";
-import { Vector3, Quaternion } from "decentraland-ecs"
+import { Vector3 } from "./Vector3"
+import { Quaternion } from "./Quaternion"
+
 /**
  * Sent and received when new users join the server
  */

@@ -1,5 +1,6 @@
 import { boundsMax, boundsMin } from "./config";
-import { Vector3, Quaternion } from "decentraland-ecs";
+import { Vector3 } from "./Vector3"
+import { Quaternion } from "./Quaternion"
 
 const validIdPattern = /^character-\d{5,20}$/;
 const validUsernamePattern = /^[0-9a-zA-Z\-\_\.\ ]{3,20}$/;
