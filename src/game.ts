@@ -124,6 +124,7 @@ export class TileColors implements ISystem {
   }
 }
 
+
 // Add system to engine
 engine.addSystem(new TileColors())
 
@@ -295,6 +296,8 @@ let character = new Character();
 /////////////////////////
 // Scenery
 
+let collideBox = new BoxShape()
+collideBox.withCollisions = true
 
 let billboardBox = new Entity()
 billboardBox.set(new Transform())
@@ -310,8 +313,7 @@ let leftWall = new Entity()
 leftWall.set(new Transform())
 leftWall.get(Transform).position.set(2, defaultTileY, 0.5)
 leftWall.get(Transform).scale.set(4, 3, 0.03)
-leftWall.set(new BoxShape())
-leftWall.get(BoxShape).withCollisions = true
+leftWall.set(collideBox)
 leftWall.set(new FallInPosition(1))
 leftWall.set(wallMaterial)
 engine.addEntity(leftWall)
@@ -320,8 +322,7 @@ let rightWall = new Entity()
 rightWall.set(new Transform())
 rightWall.get(Transform).position.set(8, defaultTileY, 0.5)
 rightWall.get(Transform).scale.set(4, 3, 0.03)
-rightWall.set(new BoxShape())
-rightWall.get(BoxShape).withCollisions = true
+rightWall.set(collideBox)
 rightWall.set(new FallInPosition(1))
 rightWall.set(wallMaterial)
 engine.addEntity(rightWall)
@@ -330,8 +331,7 @@ let door = new Entity()
 door.set(new Transform())
 door.get(Transform).position.set(5, defaultTileY, 0.5)
 door.get(Transform).scale.set(2, 3, 0.01)
-door.set(new BoxShape())
-door.get(BoxShape).withCollisions = true
+door.set(collideBox)
 door.set(new FallInPosition(1.5))
 door.set(new SlideDoor())
 door.set(doorMaterial)

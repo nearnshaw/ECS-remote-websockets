@@ -12,7 +12,7 @@ import {
   ICharacterRotationEvent,
   ICharacterUsernameEvent,
 } from "./lib/character-manager";
-import { socketPath } from "./lib/config";
+//import { socketPath } from "./lib/config";
 
 
 const throttle = require("lodash/throttle");
@@ -39,10 +39,10 @@ ws.on('connection', (ws: WebSocket) => {
   ws.send('Hi there, I am a WebSocket server');
 });
 
-//start our server
-httpServer.listen(process.env.PORT || HTTP_PORT, () => {
-  console.log(`Server started on port ${ws.address()} :)`);
-});
+// //start our server
+// httpServer.listen(process.env.PORT || HTTP_PORT, () => {
+//   console.log(`Server started on port ${ws.address()} :)`);
+// });
 
 
 
